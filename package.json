@@ -10,7 +10,7 @@
     "url": "https://github.com/RizkyArifNur/coolgram-bot"
   },
   "scripts": {
-    "lint": "tslint --project tsconfig.json && tslint --project __test__/tsconfig.json -c ./tslint.json",
+    "lint": "tslint --project tsconfig.json -c ./tslint.json",
     "lintTest": "tslint --project __test__/tsconfig.json -c ./tslint.json",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"src/*.ts\" \"__test__/*.ts\"",
