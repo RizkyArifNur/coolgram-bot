@@ -1,0 +1,107 @@
+{
+  "name": "coolgram-bot",
+  "version": "0.0.0-semantically-released",
+  "description": "Telegram bot untuk merekap pesan-pesan kulgram",
+  "main": "dist/index.js",
+  "author": "Rizky Arif Nur Choir",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RizkyArifNur/coolgram-bot"
+  },
+  "scripts": {
+    "lint": "tslint --project tsconfig.json && tslint --project __test__/tsconfig.json -c ./tslint.json",
+    "lintTest": "tslint --project __test__/tsconfig.json -c ./tslint.json",
+    "build": "tsc",
+    "format": "prettier --write \"src/**/*.ts\" \"src/*.ts\" \"__test__/*.ts\"",
+    "start": "ts-node src",
+    "test": "jest --verbose --runInBand",
+    "start-example": "ts-node example/index.ts",
+    "semantic-release": "semantic-release",
+    "gen-doc": "typedoc --plugin typedoc-plugin-markdown --out ./doc ./src",
+    "commit": "git-cz"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.15",
+    "@types/node": "^12.0.12",
+    "cz-conventional-changelog": "2.1.0",
+    "husky": "^3.0.0",
+    "jest": "^24.8.0",
+    "lint-staged": "^9.0.2",
+    "prettier": "^1.18.2",
+    "semantic-release": "^15.13.18",
+    "ts-jest": "^24.0.2",
+    "ts-node": "^8.3.0",
+    "tslint": "^5.18.0",
+    "tslint-config-prettier": "^1.18.0",
+    "tslint-config-standard": "^8.0.1",
+    "typedoc": "^0.15.0",
+    "typedoc-plugin-markdown": "^2.2.7",
+    "typescript": "^3.5.2"
+  },
+  "keywords": [
+    "bot",
+    "telegram",
+    "kulgram"
+  ],
+  "jest": {
+    "transform": {
+      ".(ts|tsx)": "ts-jest"
+    },
+    "collectCoverage": false,
+    "testRegex": "(/__test__/.*|(\\.|/)(test|spec))\\.[jt]sx?$$",
+    "rootDir": ".",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "json"
+    ],
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "./tsconfig.json"
+      }
+    },
+    "testEnvironment": "node",
+    "transformIgnorePatterns": [
+      "node_modules"
+    ],
+    "testPathIgnorePatterns": [
+      "<rootDir>/build/",
+      "<rootDir>/config/",
+      "<rootDir>/data/",
+      "<rootDir>/dist/",
+      "<rootDir>/node_modules/",
+      "<rootDir>/vendor/"
+    ],
+    "moduleDirectories": [
+      "node_modules"
+    ],
+    "modulePathIgnorePatterns": [
+      "<rootDir>/node_modules/"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged && yarn test"
+    }
+  },
+  "lint-staged": {
+    "src/**/*.ts": [
+      "yarn format",
+      "yarn lint",
+      "git add"
+    ],
+    "__test__/*.ts": [
+      "yarn format",
+      "yarn lint",
+      "git add"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "dependencies": {}
+}
