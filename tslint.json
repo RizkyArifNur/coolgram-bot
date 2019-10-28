@@ -9,7 +9,8 @@
     "member-access": false,
     "only-arrow-functions": false,
     "no-console": false,
-    "no-unused-variable": true
+    "no-unused-variable": true,
+    "no-unnecessary-type-assertion": false
   },
   "rulesDirectory": []
 }
