@@ -104,6 +104,7 @@
     }
   },
   "dependencies": {
+    "@typegoose/typegoose": "^6.0.4",
     "dotenv": "^8.2.0",
     "telegraf": "^3.33.0"
   }
