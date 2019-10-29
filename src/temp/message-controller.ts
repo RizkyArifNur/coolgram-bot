@@ -32,7 +32,8 @@ export class MessageController {
             lastName: message.from!.last_name || '',
             message: message.text!
           }
-        ]
+        ],
+        dateStart: new Date()
       })
     }
     this.writeRecordedMessage(recordedMessage)
