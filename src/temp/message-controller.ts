@@ -3,41 +3,58 @@ import { IncomingMessage } from 'telegraf/typings/telegram-types'
 import { IRecordedMessages } from '../typings'
 import { StateController } from './state-controller'
 export class MessageController {
-  static handleMessage(message: IncomingMessage) {
+  static handle(message: IncomingMessage) {
     this.ensureFileExists()
+    let isQna = false
     const state = StateController.readState().find(s => s.chatId === message.chat.id)
-    if (state) {
-      this.handle(message, state.state === 'START-QNA')
-    }
-  }
 
-  private static messagePath = process.env.MESSAGE_RECORDED_PATH!
-  private static handle(message: IncomingMessage, isQna: boolean) {
-    const recordedMessage = this.readRecordedMessage()
-    const chatAlreadyRecorded = recordedMessage.find(rm => rm.chatId === message.chat.id)
-    if (chatAlreadyRecorded) {
-      chatAlreadyRecorded.data.push({
-        firstName: message.from!.first_name,
-        isQna,
-        lastName: message.from!.last_name || '',
-        message: message.text!
-      })
-    } else {
-      recordedMessage.push({
-        chatId: message.chat.id,
-        data: [
-          {
-            firstName: message.from!.first_name,
-            isQna,
-            lastName: message.from!.last_name || '',
-            message: message.text!
-          }
-        ],
-        dateStart: new Date()
-      })
+    if (state) {
+      const recordedMessage = this.readRecordedMessage()
+      if (state.state === 'STARTING') {
+        recordedMessage.push({
+          author: '',
+          chatId: message.chat.id,
+          data: [],
+          dateStart: new Date(),
+          title: message.text
+        })
+        StateController.setState(message.chat.id, 'PICK-AUTHOR')
+        this.writeRecordedMessage(recordedMessage)
+        return
+      } else if (state.state === 'PICK-AUTHOR') {
+        const msg = recordedMessage.find(rm => rm.chatId === message.chat.id)!
+        msg.author = message.text
+        StateController.setState(message.chat.id, 'STARTED')
+        this.writeRecordedMessage(recordedMessage)
+        return
+      }
+      isQna = state.state === 'START-QNA'
+      const chatAlreadyRecorded = recordedMessage.find(rm => rm.chatId === message.chat.id)
+      if (chatAlreadyRecorded) {
+        chatAlreadyRecorded.data.push({
+          firstName: message.from!.first_name,
+          isQna,
+          lastName: message.from!.last_name || '',
+          message: message.text!
+        })
+      } else {
+        recordedMessage.push({
+          chatId: message.chat.id,
+          data: [
+            {
+              firstName: message.from!.first_name,
+              isQna,
+              lastName: message.from!.last_name || '',
+              message: message.text!
+            }
+          ],
+          dateStart: new Date()
+        })
+      }
+      this.writeRecordedMessage(recordedMessage)
     }
-    this.writeRecordedMessage(recordedMessage)
   }
+  private static messagePath = process.env.MESSAGE_RECORDED_PATH!
   private static writeRecordedMessage(message: IRecordedMessages[]) {
     writeFileSync(this.messagePath, JSON.stringify(message))
   }

@@ -5,7 +5,7 @@ export interface IMessage {
   isQna: boolean
 }
 
-export type KulgramState = 'STOPED' | 'STARTED' | 'START-QNA'
+export type KulgramState = 'STARTING' | 'PICK-AUTHOR' | 'STOPED' | 'STARTED' | 'START-QNA'
 
 export interface IState {
   chatId: number
