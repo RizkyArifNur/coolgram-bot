@@ -14,5 +14,9 @@ export interface IState {
 
 export interface IRecordedMessages {
   chatId: number
+  title: string
+  author: string
+  dateStart: Date
+  dateEnd: Date
   data: IMessage[]
 }
