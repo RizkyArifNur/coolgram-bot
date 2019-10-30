@@ -19,20 +19,20 @@ export function makePdf(message: IRecordedMessages) {
   for (let i = 0; i < message.data.length; i++) {
     if (i > 0 && chatData[i].isQna === true && chatData[i - 1].isQna === false) {
       content.push({
-        text: `QnA ${noQna}`,
-        style: 'qna'
+        style: 'qna',
+        text: `QnA ${noQna}`
       })
       noQna += 1
     }
     if (chatData[i].isQna === true) {
       content.push({
-        text: `${chatData[i].firstName} : "${chatData[i].message}"`,
-        style: 'qnaContent'
+        style: 'qnaContent',
+        text: `${chatData[i].firstName} : "${chatData[i].message}"`
       })
     } else {
       content.push({
-        text: `${chatData[i].message}`,
-        style: 'content'
+        style: 'content',
+        text: `${chatData[i].message}`
       })
     }
   }
@@ -40,43 +40,43 @@ export function makePdf(message: IRecordedMessages) {
   const docDefinition = {
     content: [
       {
-        text: `${message.title}`,
-        style: 'header'
+        style: 'header',
+        text: `${message.title}`
       },
       {
-        text: `Oleh : ${message.author}`,
-        style: 'subheader'
+        style: 'subheader',
+        text: `Oleh : ${message.author}`
       },
       {
-        text: getDateIndonesia(String(message.dateStart)),
-        style: 'subheader'
+        style: 'subheader',
+        text: getDateIndonesia(String(message.dateStart))
       },
       ...content
     ],
     styles: {
+      content: {
+        alignment: 'justify',
+        fontSize: 14,
+        margin: [0, 16, 0, 0]
+      },
       header: {
         alignment: 'center',
         fontSize: 28,
         margin: [0, 5]
       },
-      subheader: {
-        alignment: 'center',
-        fontSize: 15,
-        margin: [0, 2]
-      },
-      content: {
-        alignment: 'justify',
-        fontSize: 14,
-        margin: [0, 16, 0, 0]
+      qna: {
+        fontSize: 28,
+        margin: [0, 30, 0, 10]
       },
       qnaContent: {
         alignment: 'left',
         fontSize: 14,
         margin: [0, 8, 0, 0]
       },
-      qna: {
-        fontSize: 28,
-        margin: [0, 30, 0, 10]
+      subheader: {
+        alignment: 'center',
+        fontSize: 15,
+        margin: [0, 2]
       }
     }
   }
