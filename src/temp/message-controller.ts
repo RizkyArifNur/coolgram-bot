@@ -3,6 +3,11 @@ import { IncomingMessage } from 'telegraf/typings/telegram-types'
 import { IRecordedMessages } from '../typings'
 import { StateController } from './state-controller'
 export class MessageController {
+  static read(chatId: number | string): IRecordedMessages | undefined {
+    return (JSON.parse(readFileSync(this.messagePath).toString()) as IRecordedMessages[]).find(
+      rm => rm.chatId === chatId
+    )
+  }
   static handle(message: IncomingMessage) {
     this.ensureFileExists()
     let isQna = false
