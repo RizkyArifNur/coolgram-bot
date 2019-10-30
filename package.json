@@ -107,6 +107,7 @@
   "dependencies": {
     "@typegoose/typegoose": "^6.0.4",
     "dotenv": "^8.2.0",
+    "pdfmake": "^0.1.61",
     "telegraf": "^3.33.0"
   }
 }
