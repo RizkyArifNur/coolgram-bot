@@ -1,4 +1,5 @@
 import { createWriteStream } from 'fs'
+// @ts-ignore
 import PdfPrinter from 'pdfmake'
 import { IRecordedMessages } from './typings'
 
