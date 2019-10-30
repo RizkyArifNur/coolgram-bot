@@ -12,26 +12,26 @@ const fonts = {
 }
 const printer = new PdfPrinter(fonts)
 
-export function makePdf(data: IRecordedMessages) {
-  const dataChat = data.data
+export function makePdf(message: IRecordedMessages) {
+  const chatData = message.data
   const content = []
   let noQna = 1
-  for (let i = 0; i < data.data.length; i++) {
-    if (i > 0 && dataChat[i].isQna === true && dataChat[i - 1].isQna === false) {
+  for (let i = 0; i < message.data.length; i++) {
+    if (i > 0 && chatData[i].isQna === true && chatData[i - 1].isQna === false) {
       content.push({
         text: `QnA ${noQna}`,
         style: 'qna'
       })
       noQna += 1
     }
-    if (dataChat[i].isQna === true) {
+    if (chatData[i].isQna === true) {
       content.push({
-        text: `${dataChat[i].firstName} : "${dataChat[i].message}"`,
+        text: `${chatData[i].firstName} : "${chatData[i].message}"`,
         style: 'qnaContent'
       })
     } else {
       content.push({
-        text: `${dataChat[i].message}`,
+        text: `${chatData[i].message}`,
         style: 'content'
       })
     }
@@ -40,15 +40,15 @@ export function makePdf(data: IRecordedMessages) {
   const docDefinition = {
     content: [
       {
-        text: `${data.title}`,
+        text: `${message.title}`,
         style: 'header'
       },
       {
-        text: `Oleh : ${data.author}`,
+        text: `Oleh : ${message.author}`,
         style: 'subheader'
       },
       {
-        text: getDateIndonesia(String(data.dateStart)),
+        text: getDateIndonesia(String(message.dateStart)),
         style: 'subheader'
       },
       ...content
@@ -86,7 +86,7 @@ export function makePdf(data: IRecordedMessages) {
   pdfDoc.end()
 }
 
-function getDateIndonesia(tgl: string): string {
+function getDateIndonesia(date: string): string {
   enum monthIndo {
     'Januari' = 1,
     'Februari',
@@ -101,10 +101,10 @@ function getDateIndonesia(tgl: string): string {
     'November',
     'Desember'
   }
-  const arrTgl = tgl.substring(0, 10).split('-')
-  const day = arrTgl[2]
-  const month = monthIndo[arrTgl[1]]
-  const year = arrTgl[0]
+  const dates = date.substring(0, 10).split('-')
+  const day = dates[2]
+  const month = monthIndo[dates[1]]
+  const year = dates[0]
   return `${day} ${month} ${year}`
 }
 
