@@ -3,7 +3,7 @@ require('dotenv').config()
 import TelegramBot from 'telegraf'
 import { MessageController } from './temp/message-controller'
 import { StateController } from './temp/state-controller'
-import { promiseCatcher } from './utils'
+import { makePdf, promiseCatcher } from './utils'
 const commands = {
   startKulgram: 'startKulgram',
   startQna: 'startQna',
@@ -25,6 +25,9 @@ coolgramBot.command(commands.stopQna, ctx => {
 
 coolgramBot.command(commands.stopKulgram, ctx => {
   StateController.setState(ctx.message!.chat.id, 'STOPED')
+  const message = MessageController.read(ctx.chat!.id)!
+  makePdf(message)
+  promiseCatcher(ctx.telegram.sendDocument(ctx.chat!.id, { filename: 'recap.pdf', source: 'recap.pdf' }))
 })
 coolgramBot.on('text', ctx => {
   const botState = StateController.readState().find(s => (s.chatId = ctx.chat!.id))
