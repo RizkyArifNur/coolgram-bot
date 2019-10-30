@@ -24,6 +24,11 @@ export function makePdf(message: IRecordedMessages) {
         text: `QnA ${noQna}`
       })
       noQna += 1
+    } else if (i > 0 && chatData[i].isQna === false && chatData[i - 1].isQna === true) {
+      content.push({
+        style: 'br',
+        text: ''
+      })
     }
     if (chatData[i].isQna === true) {
       content.push({
@@ -55,10 +60,13 @@ export function makePdf(message: IRecordedMessages) {
       ...content
     ],
     styles: {
+      br: {
+        margin: [0, 10]
+      },
       content: {
         alignment: 'justify',
         fontSize: 14,
-        margin: [0, 16, 0, 0]
+        margin: [0, 8, 0, 0]
       },
       header: {
         alignment: 'center',
