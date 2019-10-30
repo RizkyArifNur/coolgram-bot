@@ -10,9 +10,7 @@
     "only-arrow-functions": false,
     "no-console": false,
     "no-unused-variable": true,
-    "no-unnecessary-type-assertion": false,
-    "no-var-requires": true,
-    "object-literal-sort-keys": false
+    "no-unnecessary-type-assertion": false
   },
   "rulesDirectory": []
 }
