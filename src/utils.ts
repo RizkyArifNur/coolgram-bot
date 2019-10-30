@@ -17,29 +17,40 @@ export function makePdf(message: IRecordedMessages) {
   const chatData = message.data
   const content = []
   let noQna = 1
+  let contentKulgram = []
   for (let i = 0; i < message.data.length; i++) {
     if (i > 0 && chatData[i].isQna === true && chatData[i - 1].isQna === false) {
+      content.push({
+        style: 'content',
+        text: contentKulgram
+      })
       content.push({
         style: 'qna',
         text: `QnA ${noQna}`
       })
       noQna += 1
+      contentKulgram = []
     } else if (i > 0 && chatData[i].isQna === false && chatData[i - 1].isQna === true) {
       content.push({
         style: 'br',
         text: ''
       })
     }
+
+    if (i === message.data.length - 1) {
+      content.push({
+        style: 'content',
+        text: contentKulgram
+      })
+    }
+
     if (chatData[i].isQna === true) {
       content.push({
         style: 'qnaContent',
         text: `${chatData[i].firstName} : "${chatData[i].message}"`
       })
     } else {
-      content.push({
-        style: 'content',
-        text: `${chatData[i].message}`
-      })
+      contentKulgram.push(`${chatData[i].message}. `)
     }
   }
 
@@ -54,7 +65,7 @@ export function makePdf(message: IRecordedMessages) {
         text: `Oleh : ${message.author}`
       },
       {
-        style: 'subheader',
+        style: 'date',
         text: getDateIndonesia(String(message.dateStart))
       },
       ...content
@@ -67,6 +78,11 @@ export function makePdf(message: IRecordedMessages) {
         alignment: 'justify',
         fontSize: 14,
         margin: [0, 8, 0, 0]
+      },
+      date: {
+        alignment: 'center',
+        fontSize: 15,
+        margin: [0, 2, 0, 10]
       },
       header: {
         alignment: 'center',
