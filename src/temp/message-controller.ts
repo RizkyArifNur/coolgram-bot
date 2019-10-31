@@ -1,50 +1,64 @@
-import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { IncomingMessage } from 'telegraf/typings/telegram-types'
-import { IRecordedMessages } from '../typings'
-import { StateController } from './state-controller'
-export class MessageController {
-  static read(chatId: number | string): IRecordedMessages | undefined {
-    return (JSON.parse(readFileSync(this.messagePath).toString()) as IRecordedMessages[]).find(
-      rm => rm.chatId === chatId
-    )
+import { ChatStateRepository } from '../repository/chat-state-repository'
+import { MessageRepository } from '../repository/message-repository'
+export class SessionController {
+  messageRepository = new MessageRepository()
+  chatStateRepository: ChatStateRepository
+  constructor(chatStateRepository: ChatStateRepository) {
+    this.chatStateRepository = chatStateRepository
   }
-  static handle(message: IncomingMessage) {
-    this.ensureFileExists()
+  getSessionById(id: number) {
+    return this.messageRepository.findById(id)
+  }
+  handle(message: IncomingMessage) {
     let isQna = false
-    const state = StateController.readState().find(s => s.chatId === message.chat.id)
+    const chatId = message.chat.id
+    const state = this.chatStateRepository.findById(chatId)
 
     if (state) {
-      const recordedMessage = this.readRecordedMessage()
       if (state.state === 'STARTING') {
-        recordedMessage.push({
+        this.messageRepository.insert({
           author: '',
-          chatId: message.chat.id,
           data: [],
+          dateEnd: null,
           dateStart: new Date(),
+          id: message.chat.id,
           title: message.text
         })
-        StateController.setState(message.chat.id, 'PICK-AUTHOR')
-        this.writeRecordedMessage(recordedMessage)
+        this.chatStateRepository.update(chatId, {
+          state: 'PICK-AUTHOR'
+        })
         return
       } else if (state.state === 'PICK-AUTHOR') {
-        const msg = recordedMessage.find(rm => rm.chatId === message.chat.id)!
+        const msg = this.messageRepository.findById(chatId)
+        if (!msg) {
+          throw new Error('Something went wrong') // TODO: Please fix this
+        }
         msg.author = message.text
-        StateController.setState(message.chat.id, 'STARTED')
-        this.writeRecordedMessage(recordedMessage)
+        this.messageRepository.update(msg.id, {
+          author: msg.author,
+          data: msg.data,
+          dateEnd: msg.dateEnd,
+          dateStart: msg.dateStart,
+          title: msg.title
+        })
+        this.chatStateRepository.update(chatId, {
+          state: 'STARTED'
+        })
         return
       }
       isQna = state.state === 'START-QNA'
-      const chatAlreadyRecorded = recordedMessage.find(rm => rm.chatId === message.chat.id)
+
+      const chatAlreadyRecorded = this.messageRepository.findById(chatId)
       if (chatAlreadyRecorded) {
-        chatAlreadyRecorded.data.push({
+        this.messageRepository.insertNewMessage(chatId, {
           firstName: message.from!.first_name,
           isQna,
           lastName: message.from!.last_name || '',
           message: message.text!
         })
       } else {
-        recordedMessage.push({
-          chatId: message.chat.id,
+        this.messageRepository.insert({
           data: [
             {
               firstName: message.from!.first_name,
@@ -53,28 +67,11 @@ export class MessageController {
               message: message.text!
             }
           ],
-          dateStart: new Date()
+          dateEnd: null,
+          dateStart: new Date(),
+          id: message.chat.id
         })
       }
-      this.writeRecordedMessage(recordedMessage)
-    }
-  }
-  private static messagePath = process.env.MESSAGE_RECORDED_PATH!
-  private static writeRecordedMessage(message: IRecordedMessages[]) {
-    writeFileSync(this.messagePath, JSON.stringify(message))
-  }
-  private static readRecordedMessage(): IRecordedMessages[] {
-    return JSON.parse(readFileSync(this.messagePath).toString())
-  }
-  private static ensureFileExists() {
-    /**
-     * check if message already exists
-     */
-    if (!existsSync(this.messagePath)) {
-      /**
-       * if message not found then create it
-       */
-      writeFileSync(this.messagePath, '[]')
     }
   }
 }
