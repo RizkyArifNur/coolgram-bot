@@ -1,8 +1,8 @@
 // tslint:disable-next-line: no-var-requires
 require('dotenv').config()
 import TelegramBot from 'telegraf'
-import { MessageController } from './temp/message-controller'
-import { StateController } from './temp/state-controller'
+import { ChatStateRepository } from './repository/chat-state-repository'
+import { SessionController } from './temp/message-controller'
 import { makePdf, promiseCatcher } from './utils'
 const commands = {
   startKulgram: 'startKulgram',
@@ -11,32 +11,41 @@ const commands = {
   stopQna: 'stopQna'
 }
 const coolgramBot = new TelegramBot(process.env.BOT_TOKEN!)
+const chatStateRepository = new ChatStateRepository()
+const sessionController = new SessionController(chatStateRepository)
+
 coolgramBot.command(commands.startKulgram, ctx => {
   promiseCatcher(ctx.reply('Apa judul kulgram anda?'))
-  StateController.setState(ctx.message!.chat.id, 'STARTING')
+  chatStateRepository.update(ctx.message!.chat.id, {
+    state: 'STARTING'
+  })
 })
 coolgramBot.command(commands.startQna, ctx => {
-  StateController.setState(ctx.message!.chat.id, 'START-QNA')
+  chatStateRepository.update(ctx.message!.chat.id, { state: 'START-QNA' })
 })
 
 coolgramBot.command(commands.stopQna, ctx => {
-  StateController.setState(ctx.message!.chat.id, 'STARTED')
+  chatStateRepository.update(ctx.message!.chat.id, { state: 'STARTED' })
 })
 
 coolgramBot.command(commands.stopKulgram, ctx => {
-  StateController.setState(ctx.message!.chat.id, 'STOPED')
-  const message = MessageController.read(ctx.chat!.id)!
-  makePdf(message)
+  chatStateRepository.update(ctx.message!.chat.id, {
+    state: 'STOPED'
+  })
+  const session = sessionController.getSessionById(ctx.chat!.id)
+  if (session) {
+    makePdf(session)
+  }
   promiseCatcher(ctx.telegram.sendDocument(ctx.chat!.id, { filename: 'recap.pdf', source: 'recap.pdf' }))
 })
 coolgramBot.on('text', ctx => {
-  const botState = StateController.readState().find(s => (s.chatId = ctx.chat!.id))
+  const botState = chatStateRepository.findById(ctx.chat!.id)
   if (botState && botState.state === 'STARTING') {
     promiseCatcher(ctx.reply('Siapa author kulgramnya ?'))
   } else if (botState && botState.state === 'PICK-AUTHOR') {
     promiseCatcher(ctx.reply('Ok Kulgram di mulai !'))
   }
-  MessageController.handle(ctx.message!)
+  sessionController.handle(ctx.message!)
 })
 
 promiseCatcher(coolgramBot.launch())

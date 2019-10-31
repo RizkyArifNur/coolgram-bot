@@ -1,7 +1,7 @@
 import { createWriteStream } from 'fs'
 // @ts-ignore
 import PdfPrinter from 'pdfmake'
-import { IRecordedMessages } from './typings'
+import { ISession } from './typings'
 
 const fonts = {
   Roboto: {
@@ -13,7 +13,7 @@ const fonts = {
 }
 const printer = new PdfPrinter(fonts)
 
-export function makePdf(message: IRecordedMessages) {
+export function makePdf(message: ISession) {
   const chatData = message.data
   const content = []
   let noQna = 1
