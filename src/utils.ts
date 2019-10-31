@@ -50,7 +50,7 @@ export function makePdf(message: ISession) {
         text: `${chatData[i].firstName} : "${chatData[i].message}"`
       })
     } else {
-      contentKulgram.push(`${chatData[i].message}. `)
+      contentKulgram.push(`${chatData[i].message} `)
     }
   }
 
