@@ -9,6 +9,8 @@ export class DataBase<T extends IBaseData> {
   }
 
   write(data: T[]) {
+    console.log(`Writing file to ${this.filePath}`, data)
+
     this.ensureFileExists()
     writeFileSync(this.filePath, JSON.stringify(data))
   }

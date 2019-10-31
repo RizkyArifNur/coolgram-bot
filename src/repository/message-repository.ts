@@ -13,6 +13,7 @@ export class MessageRepository extends BaseRepository<ISession> {
     } else {
       throw new Error(`Message with id ${id} not found`)
     }
+    this.upsert(desiredMessage)
     return desiredMessage
   }
 }

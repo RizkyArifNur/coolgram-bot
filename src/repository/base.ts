@@ -19,19 +19,33 @@ export class BaseRepository<T extends IBaseData> {
     return data
   }
 
+  upsert(data: T) {
+    const dataFound = this.database.read().find(d => d.id === data.id)
+    const dataToProcess = Object.assign({}, data)
+    if (!dataFound) {
+      // insert
+      this.insert(dataToProcess)
+    } else {
+      // update
+      delete dataToProcess.id
+      this.update(data.id, dataToProcess)
+    }
+  }
+
   update(id: number, data: Omit<T, 'id'>) {
     const messages = this.database.read()
-    this.database.write(
-      messages.map<T>(m => {
-        if (m.id === id) {
-          return {
-            id,
-            ...data
-          } as T
-        }
-        return m
-      })
-    )
+
+    const dataToWrite = messages.map<T>(m => {
+      if (m.id === id) {
+        return {
+          id,
+          ...data
+        } as T
+      }
+      return m
+    })
+
+    this.database.write(dataToWrite)
     return {
       chatId: id,
       ...data

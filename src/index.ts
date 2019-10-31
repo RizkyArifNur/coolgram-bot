@@ -16,27 +16,23 @@ const sessionController = new SessionController(chatStateRepository)
 
 coolgramBot.command(commands.startKulgram, ctx => {
   promiseCatcher(ctx.reply('Apa judul kulgram anda?'))
-  chatStateRepository.update(ctx.message!.chat.id, {
-    state: 'STARTING'
-  })
+  chatStateRepository.upsert({ id: ctx.message!.chat.id, state: 'STARTING' })
 })
 coolgramBot.command(commands.startQna, ctx => {
-  chatStateRepository.update(ctx.message!.chat.id, { state: 'START-QNA' })
+  chatStateRepository.upsert({ id: ctx.message!.chat.id, state: 'START-QNA' })
 })
 
 coolgramBot.command(commands.stopQna, ctx => {
-  chatStateRepository.update(ctx.message!.chat.id, { state: 'STARTED' })
+  chatStateRepository.upsert({ id: ctx.message!.chat.id, state: 'STARTED' })
 })
 
 coolgramBot.command(commands.stopKulgram, ctx => {
-  chatStateRepository.update(ctx.message!.chat.id, {
-    state: 'STOPED'
-  })
+  chatStateRepository.upsert({ id: ctx.message!.chat.id, state: 'STOPED' })
   const session = sessionController.getSessionById(ctx.chat!.id)
   if (session) {
     makePdf(session)
+    promiseCatcher(ctx.telegram.sendDocument(ctx.chat!.id, { filename: 'recap.pdf', source: 'recap.pdf' }))
   }
-  promiseCatcher(ctx.telegram.sendDocument(ctx.chat!.id, { filename: 'recap.pdf', source: 'recap.pdf' }))
 })
 coolgramBot.on('text', ctx => {
   const botState = chatStateRepository.findById(ctx.chat!.id)
