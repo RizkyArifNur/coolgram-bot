@@ -105,10 +105,14 @@ export function makePdf(message: ISession) {
       }
     }
   }
+  let pdf
   const options = {}
   const pdfDoc = printer.createPdfKitDocument(docDefinition, options)
-  pdfDoc.pipe(createWriteStream('recap.pdf'))
+  pdfDoc.pipe((pdf = createWriteStream('recap.pdf')))
   pdfDoc.end()
+  pdf.on('finish', async () => {
+    console.log('Kulgram has finished !')
+  })
 }
 
 function getDateIndonesia(date: string): string {
