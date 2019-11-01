@@ -2,7 +2,7 @@
 require('dotenv').config()
 import TelegramBot from 'telegraf'
 import { ChatStateRepository } from './repository/chat-state-repository'
-import { SessionController } from './temp/message-controller'
+import { SessionController } from './temp/session-controller'
 import { makePdf, promiseCatcher } from './utils'
 const commands = {
   startKulgram: 'startKulgram',

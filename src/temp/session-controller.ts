@@ -1,8 +1,8 @@
 import { IncomingMessage } from 'telegraf/typings/telegram-types'
 import { ChatStateRepository } from '../repository/chat-state-repository'
-import { MessageRepository } from '../repository/message-repository'
+import { SessionRepository } from '../repository/session-repository'
 export class SessionController {
-  messageRepository = new MessageRepository()
+  messageRepository = new SessionRepository()
   chatStateRepository: ChatStateRepository
   constructor(chatStateRepository: ChatStateRepository) {
     this.chatStateRepository = chatStateRepository
@@ -30,7 +30,7 @@ export class SessionController {
         })
         return
       } else if (state.state === 'PICK-AUTHOR') {
-        const msg = this.messageRepository.findById(chatId)
+        const msg = this.messageRepository.getActivedSession(chatId)
         if (!msg) {
           throw new Error('Something went wrong') // TODO: Please fix this
         }
@@ -49,7 +49,7 @@ export class SessionController {
       }
       isQna = state.state === 'START-QNA'
 
-      const chatAlreadyRecorded = this.messageRepository.findById(chatId)
+      const chatAlreadyRecorded = this.messageRepository.getActivedSession(chatId)
       if (chatAlreadyRecorded) {
         this.messageRepository.insertNewMessage(chatId, {
           firstName: message.from!.first_name,

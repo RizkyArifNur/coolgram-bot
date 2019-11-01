@@ -1,9 +1,14 @@
-import { MessageDb } from '../db/message-db'
+import { DataBase } from '../db'
 import { IMessage, ISession } from '../typings'
 import { BaseRepository } from './base'
 
-export class MessageRepository extends BaseRepository<ISession> {
-  protected database = new MessageDb()
+export class SessionRepository extends BaseRepository<ISession> {
+  protected database = new DataBase<ISession>(process.env.MESSAGE_RECORDED_PATH || 'message.json')
+
+  getActivedSession(id: number) {
+    const message = this.database.read()
+    return message.find(m => m.id === id && m.dateEnd === null)
+  }
 
   insertNewMessage(id: number, data: IMessage): ISession {
     const message = this.database.read()
