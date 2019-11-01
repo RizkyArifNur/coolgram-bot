@@ -26,11 +26,11 @@ coolgramBot.command(commands.stopQna, ctx => {
   chatStateRepository.upsert({ id: ctx.message!.chat.id, state: 'STARTED' })
 })
 
-coolgramBot.command(commands.stopKulgram, ctx => {
+coolgramBot.command(commands.stopKulgram, async ctx => {
   chatStateRepository.upsert({ id: ctx.message!.chat.id, state: 'STOPED' })
   const session = sessionController.getSessionById(ctx.chat!.id)
   if (session) {
-    makePdf(session)
+    await makePdf(session)
     promiseCatcher(ctx.telegram.sendDocument(ctx.chat!.id, { filename: 'recap.pdf', source: 'recap.pdf' }))
   }
 })
