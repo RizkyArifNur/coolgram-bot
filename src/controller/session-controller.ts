@@ -1,14 +1,16 @@
 import { IncomingMessage } from 'telegraf/typings/telegram-types'
+import { MessageNotFoundError } from '../provider/error-provider'
 import { ChatStateRepository } from '../repository/chat-state-repository'
 import { SessionRepository } from '../repository/session-repository'
 export class SessionController {
-  messageRepository = new SessionRepository()
+  sessionRepository = new SessionRepository()
   chatStateRepository: ChatStateRepository
   constructor(chatStateRepository: ChatStateRepository) {
     this.chatStateRepository = chatStateRepository
   }
-  getSessionById(id: number) {
-    return this.messageRepository.findById(id)
+  getSessionById(_id: number) {
+    throw new MessageNotFoundError('Something Went wrong')
+    // return this.sessionRepository.findById(id)
   }
   handle(message: IncomingMessage) {
     let isQna = false
@@ -17,7 +19,7 @@ export class SessionController {
 
     if (state) {
       if (state.state === 'STARTING') {
-        this.messageRepository.insert({
+        this.sessionRepository.insert({
           author: '',
           data: [],
           dateEnd: null,
@@ -30,12 +32,12 @@ export class SessionController {
         })
         return
       } else if (state.state === 'PICK-AUTHOR') {
-        const msg = this.messageRepository.getActivedSession(chatId)
+        const msg = this.sessionRepository.getActivedSession(chatId)
         if (!msg) {
           throw new Error('Something went wrong') // TODO: Please fix this
         }
         msg.author = message.text
-        this.messageRepository.update(msg.id, {
+        this.sessionRepository.update(msg.id, {
           author: msg.author,
           data: msg.data,
           dateEnd: msg.dateEnd,
@@ -49,16 +51,16 @@ export class SessionController {
       }
       isQna = state.state === 'START-QNA'
 
-      const chatAlreadyRecorded = this.messageRepository.getActivedSession(chatId)
+      const chatAlreadyRecorded = this.sessionRepository.getActivedSession(chatId)
       if (chatAlreadyRecorded) {
-        this.messageRepository.insertNewMessage(chatId, {
+        this.sessionRepository.insertNewMessage(chatId, {
           firstName: message.from!.first_name,
           isQna,
           lastName: message.from!.last_name || '',
           message: message.text!
         })
       } else {
-        this.messageRepository.insert({
+        this.sessionRepository.insert({
           data: [
             {
               firstName: message.from!.first_name,

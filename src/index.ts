@@ -1,9 +1,9 @@
 // tslint:disable-next-line: no-var-requires
 require('dotenv').config()
-import TelegramBot from 'telegraf'
+import TelegramBot, { ContextMessageUpdate } from 'telegraf'
+import { SessionController } from './controller/session-controller'
 import { ChatStateRepository } from './repository/chat-state-repository'
-import { SessionController } from './temp/session-controller'
-import { makePdf, promiseCatcher } from './utils'
+import { promiseCatcher } from './utils'
 const commands = {
   startKulgram: 'startKulgram',
   startQna: 'startQna',
@@ -28,13 +28,14 @@ coolgramBot.command(commands.stopQna, ctx => {
 
 coolgramBot.command(commands.stopKulgram, ctx => {
   chatStateRepository.upsert({ id: ctx.message!.chat.id, state: 'STOPED' })
-  const session = sessionController.getSessionById(ctx.chat!.id)
-  if (session) {
-    makePdf(session)
-    promiseCatcher(ctx.telegram.sendDocument(ctx.chat!.id, { filename: 'recap.pdf', source: 'recap.pdf' }))
-  }
+  // const session = sessionController.getSessionById(ctx.chat!.id)
+  // if (session) {
+  //   makePdf(session)
+  //   promiseCatcher(ctx.telegram.sendDocument(ctx.chat!.id, { filename: 'recap.pdf', source: 'recap.pdf' }))
+  // }
 })
 coolgramBot.on('text', ctx => {
+  sessionController.getSessionById(2)
   const botState = chatStateRepository.findById(ctx.chat!.id)
   if (botState && botState.state === 'STARTING') {
     promiseCatcher(ctx.reply('Siapa author kulgramnya ?'))
@@ -42,6 +43,10 @@ coolgramBot.on('text', ctx => {
     promiseCatcher(ctx.reply('Ok Kulgram di mulai !'))
   }
   sessionController.handle(ctx.message!)
+})
+
+coolgramBot.catch((err: any, _ctx: ContextMessageUpdate) => {
+  console.log(err)
 })
 
 promiseCatcher(coolgramBot.launch())

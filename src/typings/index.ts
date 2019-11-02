@@ -5,7 +5,9 @@ export interface IMessage {
   isQna: boolean
 }
 
-export type KulgramState = 'STARTING' | 'PICK-AUTHOR' | 'STOPED' | 'STARTED' | 'START-QNA'
+export type KulgramState = 'IDDLE' | 'STARTING' | 'PICK-AUTHOR' | 'STOPED' | 'STARTED' | 'START-QNA'
+
+export type ErrorCode = 'MESSAGE_NOT_FOUND'
 
 export interface IBaseData {
   id: number
