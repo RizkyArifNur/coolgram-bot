@@ -1,16 +1,11 @@
 import { IncomingMessage } from 'telegraf/typings/telegram-types'
-import { MessageNotFoundError } from '../provider/error-provider'
 import { ChatStateRepository } from '../repository/chat-state-repository'
 import { SessionRepository } from '../repository/session-repository'
 export class SessionController {
   sessionRepository = new SessionRepository()
-  chatStateRepository: ChatStateRepository
-  constructor(chatStateRepository: ChatStateRepository) {
-    this.chatStateRepository = chatStateRepository
-  }
-  getSessionById(_id: number) {
-    throw new MessageNotFoundError('Something Went wrong')
-    // return this.sessionRepository.findById(id)
+  chatStateRepository = new ChatStateRepository()
+  getSessionById(id: number) {
+    return this.sessionRepository.findById(id)
   }
   handle(message: IncomingMessage) {
     let isQna = false
@@ -27,9 +22,7 @@ export class SessionController {
           id: message.chat.id,
           title: message.text
         })
-        this.chatStateRepository.update(chatId, {
-          state: 'PICK-AUTHOR'
-        })
+        this.chatStateRepository.updateKulgramState(chatId, 'PICK-AUTHOR')
         return
       } else if (state.state === 'PICK-AUTHOR') {
         const msg = this.sessionRepository.getActivedSession(chatId)
@@ -44,9 +37,7 @@ export class SessionController {
           dateStart: msg.dateStart,
           title: msg.title
         })
-        this.chatStateRepository.update(chatId, {
-          state: 'STARTED'
-        })
+        this.chatStateRepository.updateKulgramState(chatId, 'STARTED')
         return
       }
       isQna = state.state === 'START-QNA'

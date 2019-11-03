@@ -17,3 +17,11 @@ export class MessageNotFoundError extends ErrorProvider {
     this.message = message
   }
 }
+
+export class ChatStateNotFoundError extends ErrorProvider {
+  constructor(message: string) {
+    super()
+    this.code = 'CHAT_STATE_NOT_FOUND'
+    this.message = message
+  }
+}

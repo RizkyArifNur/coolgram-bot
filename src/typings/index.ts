@@ -5,9 +5,9 @@ export interface IMessage {
   isQna: boolean
 }
 
-export type KulgramState = 'IDDLE' | 'STARTING' | 'PICK-AUTHOR' | 'STOPED' | 'STARTED' | 'START-QNA'
+export type KulgramState = 'STARTING' | 'PICK-AUTHOR' | 'STOPED' | 'STARTED' | 'START-QNA'
 
-export type ErrorCode = 'MESSAGE_NOT_FOUND'
+export type ErrorCode = 'MESSAGE_NOT_FOUND' | 'CHAT_STATE_NOT_FOUND'
 
 export interface IBaseData {
   id: number
@@ -15,6 +15,7 @@ export interface IBaseData {
 
 export interface IChatState extends IBaseData {
   state: KulgramState
+  chatPermissions?: IChatPermissions
 }
 
 export interface ISession extends IBaseData {

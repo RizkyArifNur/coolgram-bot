@@ -1,38 +1,38 @@
 import { ChatStateRepository } from '../repository'
 import { KulgramState } from '../typings'
 
-export class StateController {
+export class ChatStateController {
   chatStateRepository = new ChatStateRepository()
   getCurrentState(id: number): KulgramState {
     const currentState = this.chatStateRepository.findById(id)
     if (!currentState) {
       this.chatStateRepository.insert({
         id,
-        state: 'IDDLE'
+        state: 'STOPED'
       })
-      return 'IDDLE'
+      return 'STOPED'
     }
     return currentState.state
   }
 
-  setIddle(id: number) {
+  prepareKulgram(id: number) {
     this.ensureStateExists(id)
-    this.chatStateRepository.update(id, { state: 'IDDLE' })
+    this.chatStateRepository.updateKulgramState(id, 'STARTING')
   }
 
-  setStarting(id: number) {
+  startKulgram(id: number) {
     this.ensureStateExists(id)
-    this.chatStateRepository.update(id, { state: 'STARTING' })
+    this.chatStateRepository.updateKulgramState(id, 'STARTED')
   }
 
-  setStarted(id: number) {
+  startQna(id: number) {
     this.ensureStateExists(id)
-    this.chatStateRepository.update(id, { state: 'STARTED' })
+    this.chatStateRepository.updateKulgramState(id, 'START-QNA')
   }
 
-  setStartQna(id: number) {
+  stopKulgram(id: number) {
     this.ensureStateExists(id)
-    this.chatStateRepository.update(id, { state: 'START-QNA' })
+    this.chatStateRepository.updateKulgramState(id, 'STOPED')
   }
 
   private ensureStateExists(id: number) {
@@ -40,7 +40,7 @@ export class StateController {
     if (!currentState) {
       this.chatStateRepository.insert({
         id,
-        state: 'IDDLE'
+        state: 'STOPED'
       })
     }
   }
