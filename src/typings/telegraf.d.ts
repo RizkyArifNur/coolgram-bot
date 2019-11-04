@@ -12,3 +12,9 @@ declare module 'telegraf' {
     ) => Promise<boolean>
   }
 }
+
+declare module 'telegram-typings' {
+  export interface Chat {
+    permissions: IChatPermissions
+  }
+}

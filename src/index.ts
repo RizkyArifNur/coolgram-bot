@@ -7,6 +7,7 @@ import { makePdf, promiseCatcher } from './utils'
 const commands = {
   banUser: 'ban',
   demote: 'demote',
+  getPermission: 'permission',
   promote: 'promote',
   startKulgram: 'startKulgram',
   startQna: 'startQna',
@@ -17,6 +18,12 @@ const commands = {
 const coolgramBot = new TelegramBot(process.env.BOT_TOKEN!)
 const sessionController = new SessionController()
 const chatStateController = new ChatStateController()
+coolgramBot.command(commands.getPermission, ctx => {
+  ctx
+    .getChat()
+    .then(a => console.log(a.permissions))
+    .catch(e => console.log(e))
+})
 coolgramBot.command(commands.banUser, ctx => {
   promiseCatcher(
     ctx.telegram.setChatPermissions(ctx.chat!.id, {
