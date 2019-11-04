@@ -14,11 +14,11 @@ const fonts = {
 const printer = new PdfPrinter(fonts)
 
 export function makePdf(message: ISession) {
-  const chatData = message.data
+  const chatData = message.messages
   const content = []
   let noQna = 1
   let contentKulgram = []
-  for (let i = 0; i < message.data.length; i++) {
+  for (let i = 0; i < message.messages.length; i++) {
     if (i > 0 && chatData[i].isQna === true && chatData[i - 1].isQna === false) {
       content.push({
         style: 'content',
@@ -37,7 +37,7 @@ export function makePdf(message: ISession) {
       })
     }
 
-    if (i === message.data.length - 1) {
+    if (i === message.messages.length - 1) {
       content.push({
         style: 'content',
         text: contentKulgram

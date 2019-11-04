@@ -14,5 +14,6 @@ export class ChatStateRepository extends BaseRepository<IChatState> {
     } else {
       throw new ChatStateNotFoundError(`Chat state with id ${chatId} not found`)
     }
+    this.database.write(data)
   }
 }

@@ -5,7 +5,7 @@ export interface IMessage {
   isQna: boolean
 }
 
-export type KulgramState = 'STARTING' | 'PICK-AUTHOR' | 'STOPED' | 'STARTED' | 'START-QNA'
+export type KulgramState = 'STARTING' | 'PICK-AUTHOR' | 'CONFIRMATION' | 'RESTART' | 'STOPED' | 'STARTED' | 'START-QNA'
 
 export type ErrorCode = 'MESSAGE_NOT_FOUND' | 'CHAT_STATE_NOT_FOUND'
 
@@ -21,9 +21,10 @@ export interface IChatState extends IBaseData {
 export interface ISession extends IBaseData {
   title?: string
   author?: string
+  authorId?: number
   dateStart: Date
   dateEnd: Date | null
-  data: IMessage[]
+  messages: IMessage[]
 }
 
 export interface IChatPermissions {

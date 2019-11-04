@@ -1,5 +1,6 @@
+import { ChatStateNotFoundError } from '../provider/error-provider'
 import { ChatStateRepository } from '../repository'
-import { KulgramState } from '../typings'
+import { IChatPermissions, KulgramState } from '../typings'
 
 export class ChatStateController {
   chatStateRepository = new ChatStateRepository()
@@ -15,9 +16,33 @@ export class ChatStateController {
     return currentState.state
   }
 
+  getPermissions(id: number): IChatPermissions {
+    this.ensureStateExists(id)
+    const chatState = this.chatStateRepository.findById(id)
+    if (!chatState) {
+      throw new ChatStateNotFoundError('Not Found')
+    }
+    return chatState.chatPermissions!
+  }
+
+  updatePermissions(id: number, permissions: IChatPermissions) {
+    this.ensureStateExists(id)
+    const chatState = this.chatStateRepository.findById(id)
+    if (!chatState) {
+      throw new ChatStateNotFoundError('Not Found')
+    }
+    chatState.chatPermissions = permissions
+    this.chatStateRepository.upsert(chatState)
+  }
+
   prepareKulgram(id: number) {
     this.ensureStateExists(id)
     this.chatStateRepository.updateKulgramState(id, 'STARTING')
+  }
+
+  confirmation(id: number) {
+    this.ensureStateExists(id)
+    this.chatStateRepository.updateKulgramState(id, 'CONFIRMATION')
   }
 
   startKulgram(id: number) {

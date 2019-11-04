@@ -3,22 +3,28 @@ import { IMessage, ISession } from '../typings'
 import { BaseRepository } from './base'
 
 export class SessionRepository extends BaseRepository<ISession> {
-  protected database = new DataBase<ISession>(process.env.MESSAGE_RECORDED_PATH || 'message.json')
+  protected database = new DataBase<ISession>(process.env.session_RECORDED_PATH || 'session.json')
 
   getActivedSession(id: number) {
-    const message = this.database.read()
-    return message.find(m => m.id === id && m.dateEnd === null)
+    const session = this.database.read()
+    return session.find(m => m.id === id && m.dateEnd === null)
+  }
+
+  removeActivedSession(id: number) {
+    const session = this.database.read()
+    const filteredsession = session.filter(m => m.id !== id && m.dateEnd !== null)
+    this.database.write(filteredsession)
   }
 
   insertNewMessage(id: number, data: IMessage): ISession {
-    const message = this.database.read()
-    const desiredMessage = message.find(m => m.id === id)
-    if (desiredMessage) {
-      desiredMessage.data.push(data)
+    const session = this.database.read()
+    const desiredsession = session.find(m => m.id === id)
+    if (desiredsession) {
+      desiredsession.messages.push(data)
     } else {
-      throw new Error(`Message with id ${id} not found`)
+      throw new Error(`session with id ${id} not found`)
     }
-    this.upsert(desiredMessage)
-    return desiredMessage
+    this.upsert(desiredsession)
+    return desiredsession
   }
 }
