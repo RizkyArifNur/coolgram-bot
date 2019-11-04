@@ -63,7 +63,7 @@ export class Bot {
     this.chatStateController.stopKulgram(ctx.chat!.id)
     const session = this.sessionController.getActivedSession(ctx.chat!.id)
     if (session) {
-      makePdf(session)
+      await makePdf(session)
       await ctx.telegram.sendDocument(ctx.chat!.id, { filename: 'recap.pdf', source: 'recap.pdf' })
     }
   }
