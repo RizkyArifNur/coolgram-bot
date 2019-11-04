@@ -2,6 +2,7 @@
 require('dotenv').config()
 import TelegramBot, { ContextMessageUpdate } from 'telegraf'
 import { Bot } from './bot'
+import { ErrorProvider } from './provider/error-provider'
 import { promiseCatcher } from './utils'
 const commands = {
   banUser: 'ban',
@@ -35,8 +36,12 @@ coolgramBot.on('text', ctx => {
   promiseCatcher(bot.handleMessage(ctx))
 })
 
-coolgramBot.catch((err: any, _ctx: ContextMessageUpdate) => {
-  console.log(err)
+coolgramBot.catch((err: any, ctx: ContextMessageUpdate) => {
+  if (err instanceof ErrorProvider) {
+    if (err.showError) {
+      promiseCatcher(ctx.reply(err.message))
+    }
+  }
 })
 
 promiseCatcher(coolgramBot.launch())
