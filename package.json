@@ -14,7 +14,7 @@
     "lintTest": "tslint --project __test__/tsconfig.json -c ./tslint.json",
     "build": "tsc",
     "format": "prettier --write \"src/**/*.ts\" \"src/*.ts\" \"__test__/*.ts\"",
-    "start": "ts-node src",
+    "start": "ts-node --project tsconfig.json --files src/index.ts",
     "test": "jest --verbose --runInBand --passWithNoTests",
     "start-example": "ts-node example/index.ts",
     "semantic-release": "semantic-release",
