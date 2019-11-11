@@ -16,6 +16,19 @@ export class ChatStateController {
     return currentState.state
   }
 
+  getBlockedPermissions(): IChatPermissions {
+    return {
+      can_add_web_page_previews: false,
+      can_change_info: false,
+      can_invite_users: true,
+      can_pin_messages: false,
+      can_send_media_messages: false,
+      can_send_messages: false,
+      can_send_other_messages: false,
+      can_send_polls: false
+    }
+  }
+
   getPermissions(id: number): IChatPermissions {
     this.ensureStateExists(id)
     const chatState = this.chatStateRepository.findById(id)

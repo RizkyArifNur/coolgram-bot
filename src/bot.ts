@@ -34,17 +34,18 @@ export class Bot {
   async onMessageStateConfirmation(ctx: ContextMessageUpdate) {
     switch (ctx.message!.text) {
       case this.confirmationOptions.no:
-        await ctx.reply('Okay kita ulang lagi ya\nApa judul kulgram anda?', {
-          reply_markup: {
-            keyboard: []
-          }
-        })
+        await ctx.reply('Okay kita ulang lagi ya\nApa judul kulgram anda?')
         this.sessionController.removeActivedSession(ctx.chat!.id)
         this.chatStateController.prepareKulgram(ctx.chat!.id)
         break
       case this.confirmationOptions.yes:
-        await ctx.reply('Okay Kulgram di Mulai!')
+        await ctx.reply(
+          'Okay Kulgram di Mulai!, Hanya admin & author kulgram yang bisa mengirimkan pesan, group akan kembali normal ketika kulgram telah selesai...'
+        )
         this.chatStateController.startKulgram(ctx.chat!.id)
+        const permissions = this.chatStateController.getBlockedPermissions()
+        await ctx.telegram.setChatPermissions(ctx.chat!.id, permissions)
+        await this.promoteAuthor(ctx)
         break
     }
   }
@@ -94,7 +95,9 @@ export class Bot {
 
   async startKulgram(ctx: ContextMessageUpdate) {
     await ctx.reply('Apa judul kulgram anda?')
-    this.chatStateController.prepareKulgram(ctx.chat!.id)
+    const chat = await ctx.getChat()
+    this.chatStateController.prepareKulgram(chat.id)
+    this.chatStateController.updatePermissions(chat.id, chat.permissions)
   }
 
   async stopKulgram(ctx: ContextMessageUpdate) {
@@ -103,6 +106,8 @@ export class Bot {
     if (session) {
       await makePdf(session)
       await ctx.telegram.sendDocument(ctx.chat!.id, { filename: 'recap.pdf', source: 'recap.pdf' })
+      await this.demoteAuthor(ctx)
+      this.sessionController.endSession(ctx.chat!.id)
     }
   }
 
@@ -112,5 +117,31 @@ export class Bot {
 
   async stopQna(ctx: ContextMessageUpdate) {
     this.chatStateController.startKulgram(ctx.chat!.id)
+  }
+
+  private async promoteAuthor(ctx: ContextMessageUpdate) {
+    await ctx.telegram.promoteChatMember(ctx.chat!.id, this.sessionController.getActivedAuthorId(ctx.chat!.id), {
+      can_change_info: false,
+      can_delete_messages: false,
+      can_edit_messages: false,
+      can_invite_users: false,
+      can_pin_messages: false,
+      can_post_messages: true,
+      can_promote_members: false,
+      can_restrict_members: false
+    })
+  }
+
+  private async demoteAuthor(ctx: ContextMessageUpdate) {
+    await ctx.telegram.promoteChatMember(ctx.chat!.id, this.sessionController.getActivedAuthorId(ctx.chat!.id), {
+      can_change_info: false,
+      can_delete_messages: false,
+      can_edit_messages: false,
+      can_invite_users: false,
+      can_pin_messages: false,
+      can_post_messages: false,
+      can_promote_members: false,
+      can_restrict_members: false
+    })
   }
 }

@@ -1,12 +1,28 @@
 import { IncomingMessage } from 'telegraf/typings/telegram-types'
+import { MessageNotFoundError } from '../provider/error-provider'
 import { ChatStateRepository } from '../repository/chat-state-repository'
 import { SessionRepository } from '../repository/session-repository'
 export class SessionController {
   sessionRepository = new SessionRepository()
   chatStateRepository = new ChatStateRepository()
 
+  endSession(id: number) {
+    const msg = this.sessionRepository.getActivedSession(id)
+    if (!msg) {
+      throw new MessageNotFoundError('Belum ada sesi yang di mulai, mohon buat sesi kulgram baru terlebih dahulu.')
+    }
+    msg.dateEnd = new Date()
+    this.sessionRepository.upsert(msg)
+  }
   getActivedSession(id: number) {
     return this.sessionRepository.getActivedSession(id)
+  }
+  getActivedAuthorId(id: number) {
+    const session = this.sessionRepository.getActivedSession(id)
+    if (!session) {
+      throw new MessageNotFoundError('Belum ada sesi yang di mulai, mohon buat sesi kulgram baru terlebih dahulu.')
+    }
+    return session.authorId!
   }
 
   removeActivedSession(id: number) {
@@ -30,9 +46,8 @@ export class SessionController {
     const chatId = message.chat.id
     const msg = this.sessionRepository.getActivedSession(chatId)
     if (!msg) {
-      throw new Error('Something went wrong') // TODO: Please fix this
+      throw new MessageNotFoundError('Belum ada sesi yang di mulai, mohon buat sesi kulgram baru terlebih dahulu.')
     }
-    console.log('message is !!!', message)
 
     msg.author = message.reply_to_message!.from!.first_name
     msg.authorId = message.reply_to_message!.from!.id
