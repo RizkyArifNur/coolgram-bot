@@ -17,6 +17,16 @@ const commands = {
 }
 const coolgramBot = new TelegramBot(process.env.BOT_TOKEN!)
 const bot = new Bot()
+
+coolgramBot.use(async (ctx, next) => {
+  const { status } = await ctx.getChatMember(ctx.from!.id)
+  if (status === 'member' && Object.values(commands).indexOf(ctx.message!.text!.substr(1)) > -1) {
+    await ctx.reply('Maaf, kamu bukan admin di grup ini !')
+  } else {
+    next!()
+  }
+})
+
 coolgramBot.command(commands.startKulgram, ctx => {
   promiseCatcher(bot.startKulgram(ctx))
 })
