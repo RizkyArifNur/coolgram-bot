@@ -110,6 +110,7 @@ export class Bot {
       await ctx.telegram.setChatPermissions(ctx.chat!.id, permissions)
       this.chatStateController.updatePermissions(ctx.chat!.id, ctx.chat!.permissions)
       await this.demoteAuthor(ctx)
+      this.sessionController.endSession(ctx.chat!.id)
     }
   }
 
