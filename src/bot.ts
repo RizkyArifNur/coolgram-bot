@@ -106,16 +106,24 @@ export class Bot {
     if (session) {
       await makePdf(session)
       await ctx.telegram.sendDocument(ctx.chat!.id, { filename: 'recap.pdf', source: 'recap.pdf' })
+      const permissions = this.chatStateController.getAllowedPermissions()
+      await ctx.telegram.setChatPermissions(ctx.chat!.id, permissions)
+      this.chatStateController.updatePermissions(ctx.chat!.id, ctx.chat!.permissions)
       await this.demoteAuthor(ctx)
-      this.sessionController.endSession(ctx.chat!.id)
     }
   }
 
   async startQna(ctx: ContextMessageUpdate) {
+    const permissions = this.chatStateController.getAllowedPermissions()
+    await ctx.telegram.setChatPermissions(ctx.chat!.id, permissions)
+    this.chatStateController.updatePermissions(ctx.chat!.id, ctx.chat!.permissions)
     this.chatStateController.startQna(ctx.chat!.id)
   }
 
   async stopQna(ctx: ContextMessageUpdate) {
+    const permissions = this.chatStateController.getBlockedPermissions()
+    await ctx.telegram.setChatPermissions(ctx.chat!.id, permissions)
+    this.chatStateController.updatePermissions(ctx.chat!.id, ctx.chat!.permissions)
     this.chatStateController.startKulgram(ctx.chat!.id)
   }
 
